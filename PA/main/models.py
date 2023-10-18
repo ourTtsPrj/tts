@@ -23,7 +23,7 @@ class UserManager(BaseUserManager):
     user.save(using=self._db)
     return user
 
-  def create_user(self, stdcode, password, fName, lName, rank, is_staff, **extra_fields):
+  def create_user(self, stdcode, password, fName, lName, rank, **extra_fields):
     return self._create_user(stdcode, password, fName, lName, rank, 0,0, **extra_fields)
   def create_superuser(self, stdcode, password, fName, lName, rank,**extra_fields):
     return self._create_user(stdcode, password, fName, lName, rank, 1,1, **extra_fields)

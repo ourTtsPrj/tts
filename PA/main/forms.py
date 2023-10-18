@@ -11,4 +11,4 @@ class loginForm(forms.Form) :
 class signupForm(forms.Form):
     stdcode= forms.CharField(max_length=10,widget=forms.TextInput(attrs={'style': 'color:#6555df;',"placeholder":"987654321","autocomplete":"off","id":"stdCode","type":"text"}))
     password = forms.CharField(widget=forms.PasswordInput(attrs={"id":"password","autocomplete":"off","oninput":"handleInputPassword(event)","class":"password","type":"password"}))
-    password2= forms.CharField(widget=forms.PasswordInput(attrs={"id":"password","autocomplete":"off","oninput":"handleInputPassword(event)","class":"password","type":"password"}))
+    password2= forms.CharField(widget=forms.PasswordInput(attrs={"id":"password2","autocomplete":"off","oninput":"handleInputPassword(event)","class":"password","type":"password"}))

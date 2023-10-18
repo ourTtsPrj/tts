@@ -3,13 +3,48 @@ from django.contrib.auth import login, authenticate, logout
 from django.contrib.auth import get_user_model
 from .forms import *
 from .models import *
+from django.contrib.auth.decorators import login_required
 
 def checkUserLogin(r) :
     return r.user.is_authenticated 
 
+
+@login_required
+def logoutM(r) :
+    logout(r)
+    return redirect("mainM")
+@login_required
+def profile(r) :
+    return render(r,"profile.html")
+def mainM(r) :
+    if checkUserLogin(r) :
+        return redirect("profile")
+    else :
+        print("ok")
+        # return redirect("loginM")
+def signupM(r):
+    if r.method=="POST":
+        print(r.POST)
+        thesignupform=signupForm(r.POST)
+        if thesignupform.is_valid() :
+            theStdCode = thesignupform.cleaned_data.get("stdcode")
+            thePassword = thesignupform.cleaned_data.get("password")
+            thePassword2 =thesignupform.cleaned_data.get("password2") 
+            if theStdCode.isnumeric():
+                if len(theStdCode)>=8 and len(theStdCode)<=9:
+                    if thePassword==thePassword2:
+                        theNewUser = get_user_model().objects.create_user(theStdCode,thePassword,"test","acc" ,"std")
+                        user = authenticate(r,stdcode=theStdCode,password=thePassword)
+                        if user is not None :
+                            login(r,user)
+                            return redirect("profile")
+
+    else : 
+        thesignupform = signupForm()
+    return render(r,"signup.html",{"form":thesignupform})
 def loginM(r) :
     if checkUserLogin(r) :
-        return redirect("main")
+        return redirect("mainM")
     if r.method == "POST" :
         print(r.POST)
         theLoginForm = loginForm(r.POST)
@@ -19,38 +54,10 @@ def loginM(r) :
             user = authenticate(r,stdcode=theStdCode,password=thePassword)
             if user is not None :
                 login(r,user)
-            return redirect("profile")
+                return redirect("profile")
     else : 
         theLoginForm = loginForm()
     return render(r,"login.html",{"form":theLoginForm})
-def logoutM(r) :
-    if checkUserLogin(r) :
-        logout(r)
-    return redirect("main")
-def profile(r) :
-    if checkUserLogin(r) == False :
-        return redirect("main")
-    else :
-        return render(r,"profile.html")
-def mainPage(r) :
-    if checkUserLogin(r) :
-        return redirect("profile")
-    else :
-        return redirect("loginM")
-def signupM(r):
-    if r.method=="POST":
-        print(r.POST)
-        thesignupform=signupForm(r.POST)
-        if thesignupform.is_valid() :
-            theStdCode = thesignupform.cleaned_data.get("stdcode")
-            thePassword = thesignupform.cleaned_data.get("password")
-            thrPassword2 =thesignupform.cleaned_data.get("password2")  
-            theNewUser = get_user_model().objects.create_user(theStdCode,thePassword,"test","acc" ,"std")
-            #auth here
-
-    else : 
-        thesignupform = signupForm()
-    return render(r,"signup.html",{"form":thesignupform})
 
 # Create your views here.
 
