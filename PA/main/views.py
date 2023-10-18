@@ -2,6 +2,7 @@ from django.shortcuts import render,redirect
 from django.contrib.auth import login, authenticate, logout
 from django.contrib.auth import get_user_model
 from .forms import *
+from .models import *
 
 def checkUserLogin(r) :
     return r.user.is_authenticated 
