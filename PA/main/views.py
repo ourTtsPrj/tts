@@ -35,6 +35,22 @@ def mainPage(r) :
         return redirect("profile")
     else :
         return redirect("loginM")
+def signupM(r):
+    if r.method=="POST":
+        print(r.POST)
+        thesignupform=signupForm(r.POST)
+        if thesignupform.is_valid() :
+            theStdCode = thesignupform.cleaned_data.get("stdcode")
+            thePassword = thesignupform.cleaned_data.get("password")
+            thrPassword2 =thesignupform.cleaned_data.get("password2")  
+            if theStdCode.is_valid():
+                theStdCode=
+            if len(thrPassword2):
+
+    else : 
+        thesignupform = signupForm()
+    return render(r,"signup.html",{"form":thesignupform})
+
 # Create your views here.
 
 
