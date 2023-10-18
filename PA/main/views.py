@@ -1,5 +1,6 @@
 from django.shortcuts import render,redirect
 from django.contrib.auth import login, authenticate, logout
+from django.contrib.auth import get_user_model
 from .forms import *
 
 def checkUserLogin(r) :
@@ -43,9 +44,8 @@ def signupM(r):
             theStdCode = thesignupform.cleaned_data.get("stdcode")
             thePassword = thesignupform.cleaned_data.get("password")
             thrPassword2 =thesignupform.cleaned_data.get("password2")  
-            if theStdCode.is_valid():
-                theStdCode=
-            if len(thrPassword2):
+            theNewUser = get_user_model().objects.create_user(theStdCode,thePassword,"test","acc" ,"std")
+            #auth here
 
     else : 
         thesignupform = signupForm()
