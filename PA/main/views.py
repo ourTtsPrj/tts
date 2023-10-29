@@ -27,9 +27,12 @@ def signupM(r):
         print(r.POST)
         thesignupform=signupForm(r.POST)
         if thesignupform.is_valid() :
+            firstName= thesignupform.cleaned_data.get("firstName")
+            lastName= thesignupform.cleaned_data.get("lastName")
             theStdCode = thesignupform.cleaned_data.get("stdcode")
             thePassword = thesignupform.cleaned_data.get("password")
             thePassword2 =thesignupform.cleaned_data.get("password2") 
+            if firstName.is
             if theStdCode.isnumeric():
                 if len(theStdCode)>=8 and len(theStdCode)<=9:
                     if thePassword==thePassword2:
