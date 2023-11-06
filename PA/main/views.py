@@ -15,7 +15,10 @@ def logoutM(r) :
     return redirect("mainM")
 @login_required
 def profile(r) :
-    return render(r,"profile.html")
+    ufn = r.user.firstName
+    lfn= r.user.lastName
+    urank = r.user.rank
+    return render(r,"profile.html",{"fname":ufn,"lname":lfn})
 def mainM(r) :
     if checkUserLogin(r) :
         return redirect("profile")
@@ -32,7 +35,6 @@ def signupM(r):
             theStdCode = thesignupform.cleaned_data.get("stdcode")
             thePassword = thesignupform.cleaned_data.get("password")
             thePassword2 =thesignupform.cleaned_data.get("password2") 
-            if firstName.is
             if theStdCode.isnumeric():
                 if len(theStdCode)>=8 and len(theStdCode)<=9:
                     if thePassword==thePassword2:
@@ -40,7 +42,7 @@ def signupM(r):
                         user = authenticate(r,stdcode=theStdCode,password=thePassword)
                         if user is not None :
                             login(r,user)
-                            return redirect("profile")
+                            # return redirect("profileM")
 
     else : 
         thesignupform = signupForm()
