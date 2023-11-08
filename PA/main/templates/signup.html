@@ -437,6 +437,18 @@
                     -->
                         </div>
 
+                        <div class="con-input">
+                            <label for="stdCode" style="color:#6555df;">
+                                نام
+                            </label>
+                            {{ form.firstName }}
+                        </div>
+                        <div class="con-input">
+                            <label for="stdCode" style="color:#6555df;">
+                                نام خانوادگی
+                            </label>
+                            {{ form.lastName}}
+                        </div>
                         <label class="mt-3" for="password" style="color:#6555df;">
                             رمز عبور
                         </label>
@@ -482,7 +494,7 @@
                             <div class="effect"></div>
                         </div>
                         <div class="con-forgot">
-                            <a  style="color:#6555df;" class="txt" href="{% url 'main:loginM' %}">
+                            <a  style="color:#6555df;" class="txt" href="#">
                         ورود ؟
                    </a>
                        </div>

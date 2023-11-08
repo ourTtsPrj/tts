@@ -1,4 +1,5 @@
 from django.shortcuts import render,redirect
+from django.urls import reverse
 from django.contrib.auth import login, authenticate, logout
 from django.contrib.auth import get_user_model
 from .forms import *
@@ -10,22 +11,24 @@ def checkUserLogin(r) :
 
 
 @login_required
-def logoutM(r) :
+def ulogout(r) :
     logout(r)
-    return redirect("mainM")
+    return redirect("umain")
 @login_required
-def profile(r) :
+def uprofile(r) :
     ufn = r.user.firstName
     lfn= r.user.lastName
     urank = r.user.rank
     return render(r,"profile.html",{"fname":ufn,"lname":lfn})
-def mainM(r) :
+def umain(r) :
     if checkUserLogin(r) :
-        return redirect("profile")
+        return redirect("uprofile")
     else :
-        print("ok")
-        # return redirect("loginM")
-def signupM(r):
+        #print("ok")
+        return redirect("ulogin")
+def usingup(r):
+    if checkUserLogin(r) :
+        return redirect("umain")
     if r.method=="POST":
         print(r.POST)
         thesignupform=signupForm(r.POST)
@@ -42,14 +45,16 @@ def signupM(r):
                         user = authenticate(r,stdcode=theStdCode,password=thePassword)
                         if user is not None :
                             login(r,user)
-                            # return redirect("profileM")
+                            return redirect("uprofile")
 
+        else :
+            print(thesignupform.errors)
     else : 
         thesignupform = signupForm()
     return render(r,"signup.html",{"form":thesignupform})
-def loginM(r) :
+def ulogin(r) :
     if checkUserLogin(r) :
-        return redirect("mainM")
+        return redirect("umain")
     if r.method == "POST" :
         print(r.POST)
         theLoginForm = loginForm(r.POST)
@@ -59,7 +64,7 @@ def loginM(r) :
             user = authenticate(r,stdcode=theStdCode,password=thePassword)
             if user is not None :
                 login(r,user)
-                return redirect("profile")
+                return redirect("uprofile")
     else : 
         theLoginForm = loginForm()
     return render(r,"login.html",{"form":theLoginForm})
