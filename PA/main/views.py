@@ -1,13 +1,66 @@
 from django.shortcuts import render,redirect
+from django.urls import reverse
 from django.contrib.auth import login, authenticate, logout
+from django.contrib.auth import get_user_model
 from .forms import *
+from .models import *
+from django.contrib.auth.decorators import login_required
 
 def checkUserLogin(r) :
     return r.user.is_authenticated 
 
-def loginM(r) :
+
+@login_required
+def ulogout(r) :
+    logout(r)
+    return redirect("umain")
+@login_required
+def uprofile(r) :
+    ufn = r.user.firstName
+    lfn= r.user.lastName
+    urank = r.user.rank
+    if urank == "std":
+        return render(r,"userprofile.html",{"fname":ufn,"lname":lfn})
+    elif urank == "teach":
+         return render(r,"teachprofile.html",{"fname":ufn,"lname":lfn})
+def umain(r) :
     if checkUserLogin(r) :
-        return redirect("main")
+        return redirect("uprofile")
+    else :
+        #print("ok")
+        return redirect("ulogin")
+def usignup(r):
+    if checkUserLogin(r) :
+        return redirect("umain")
+    if r.method=="POST":
+        print(r.POST)
+        thesignupform=signupForm(r.POST)
+        if thesignupform.is_valid() :
+            firstName= thesignupform.cleaned_data.get("firstName")
+            lastName= thesignupform.cleaned_data.get("lastName")
+            theStdCode = thesignupform.cleaned_data.get("stdcode")
+            thePassword = thesignupform.cleaned_data.get("password")
+            thePassword2 =thesignupform.cleaned_data.get("password2") 
+            if theStdCode.isnumeric():
+                if len(theStdCode)>=8 and len(theStdCode)<=9:
+                    if thePassword==thePassword2:
+                        checkduser=User.objects.filter(stdcode=theStdCode)
+                        if len(checkduser)>0:
+                            return render(r,"signup.html",{"form":thesignupform})
+                        theNewUser = get_user_model().objects.create_user(theStdCode,thePassword,firstName,lastName ,"std")
+                        user = authenticate(r,stdcode=theStdCode,password=thePassword)
+                        if user is not None :
+                            login(r,user)
+                            return redirect("uprofile")
+
+        else :
+            print(thesignupform.errors)
+    else : 
+        thesignupform = signupForm()
+    return render(r,"signup.html",{"form":thesignupform})
+def ulogin(r) :
+    if checkUserLogin(r) :
+        return redirect("umain")
     if r.method == "POST" :
         print(r.POST)
         theLoginForm = loginForm(r.POST)
@@ -17,24 +70,11 @@ def loginM(r) :
             user = authenticate(r,stdcode=theStdCode,password=thePassword)
             if user is not None :
                 login(r,user)
-            return redirect("profile")
+                return redirect("uprofile")
     else : 
         theLoginForm = loginForm()
     return render(r,"login.html",{"form":theLoginForm})
-def logoutM(r) :
-    if checkUserLogin(r) :
-        logout(r)
-    return redirect("main")
-def profile(r) :
-    if checkUserLogin(r) == False :
-        return redirect("main")
-    else :
-        return render(r,"profile.html")
-def mainPage(r) :
-    if checkUserLogin(r) :
-        return redirect("profile")
-    else :
-        return redirect("loginM")
+
 # Create your views here.
 
 
