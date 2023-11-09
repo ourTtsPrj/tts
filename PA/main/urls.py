@@ -7,5 +7,5 @@ urlpatterns = [
     path("logout/",ulogout,name="ulogout"),
     path("profile/",uprofile,name="uprofile"),
     path("",umain,name="umain"),
-    path("signup/",usingup,name="usingup"),
+    path("signup/",usignup,name="usignup"),
 ]

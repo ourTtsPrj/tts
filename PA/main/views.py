@@ -19,14 +19,17 @@ def uprofile(r) :
     ufn = r.user.firstName
     lfn= r.user.lastName
     urank = r.user.rank
-    return render(r,"profile.html",{"fname":ufn,"lname":lfn})
+    if urank == "std":
+        return render(r,"userprofile.html",{"fname":ufn,"lname":lfn})
+    elif urank == "teach":
+         return render(r,"teachprofile.html",{"fname":ufn,"lname":lfn})
 def umain(r) :
     if checkUserLogin(r) :
         return redirect("uprofile")
     else :
         #print("ok")
         return redirect("ulogin")
-def usingup(r):
+def usignup(r):
     if checkUserLogin(r) :
         return redirect("umain")
     if r.method=="POST":
@@ -41,7 +44,10 @@ def usingup(r):
             if theStdCode.isnumeric():
                 if len(theStdCode)>=8 and len(theStdCode)<=9:
                     if thePassword==thePassword2:
-                        theNewUser = get_user_model().objects.create_user(theStdCode,thePassword,"test","acc" ,"std")
+                        checkduser=User.objects.filter(stdcode=theStdCode)
+                        if len(checkduser)>0:
+                            return render(r,"signup.html",{"form":thesignupform})
+                        theNewUser = get_user_model().objects.create_user(theStdCode,thePassword,firstName,lastName ,"std")
                         user = authenticate(r,stdcode=theStdCode,password=thePassword)
                         if user is not None :
                             login(r,user)

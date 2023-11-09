@@ -3,9 +3,11 @@
 
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script
-        src="https://cpwebassets.codepen.io/assets/common/stopExecutionOnTimeout-2c7831bb44f98c1391d6a4ffda0e1fd302503391ca806e7fcc7b9b87197aec26.js"></script>
-    <title>ثبت نام کاربران</title>
+        src="https://cpwebassets.codepen.io/assets/common/stopExecutionOnTimeout-2c7831bb44f98c1391d6a4ffda0e1fd302503391ca806e7fcc7b9b87197aec26.js">
+        </script>
+    <title>پروفایل</title>
     <link rel='stylesheet' href='https://cdn.jsdelivr.net/npm/boxicons@2.0.5/css/boxicons.min.css'>
     <link rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.5.0/css/bootstrap.min.css'>
 
@@ -83,17 +85,17 @@
 
         /* 
 .Pcon-input input {
-         width: 100%;
-        padding: 14px 20px;
-        border: 0px;
-        background: #F1F3F6;
-        border-radius: 18px;
-        border: 2px solid rgb(var(--color));
-        transition: all .25s ease;
-        opacity: .2;
-    }
+     width: 100%;
+    padding: 14px 20px;
+    border: 0px;
+    background: #F1F3F6;
+    border-radius: 18px;
+    border: 2px solid rgb(var(--color));
+    transition: all .25s ease;
+    opacity: .2;
+}
 
- */
+*/
 
 
 
@@ -138,12 +140,12 @@
 
 
         /*     label {
-        font-size: .8rem;
-        font-weight: 600;
-        color: #6555df;
-        padding-left: 10px;
-        display: block;
-    } */
+    font-size: .8rem;
+    font-weight: 600;
+    color: #6555df;
+    padding-left: 10px;
+    display: block;
+} */
 
 
 
@@ -254,15 +256,15 @@
 
 
         /* #animation {
-        position: absolute;
-        top: 0px;
-        left: 600px;
-        width: calc(100% - 600px);
-        height: 100%;
-        z-index: -1;
-       
-        border: 0px;
-    } */
+    position: absolute;
+    top: 0px;
+    left: 600px;
+    width: calc(100% - 600px);
+    height: 100%;
+    z-index: -1;
+   
+    border: 0px;
+} */
 
         #lottie {
             background: #F1F3F6 !important;
@@ -308,17 +310,17 @@
 
 
         /*     .content-login:after {
-        content: '';
-        position: absolute;
-        right: -150px;
-        background: #fff;
-        height: 100vh;
-        width: 150px;
-        top: 0px;
-        transform: skewX(3deg);
-        border-radius: 40px 0px 0px 40px;
-    }
- */
+    content: '';
+    position: absolute;
+    right: -150px;
+    background: #fff;
+    height: 100vh;
+    width: 150px;
+    top: 0px;
+    transform: skewX(3deg);
+    border-radius: 40px 0px 0px 40px;
+}
+*/
 
 
         .con-login {
@@ -411,114 +413,39 @@
 
 <body translate="no">
     <div id="baseF">
-
         <div class="content-login">
             <div class="con-login">
                 <h1 class="hd-txt" style="color:#6555df;">
-                    ثبت نام کابران
+                    پروفایل دانشجو، {{fname}}
                 </h1>
                 {% if msg %}
-                    <p> {{msg}} </p>
+                <p> {{msg}} </p>
                 {% else %}
-                <form action="#" method="post">
-                    {% csrf_token %}
-                    <div class="con-inputs">
-                        <div class="con-input">
-                            <label for="stdCode" style="color:#6555df;">
-                                شماره دانشجویی | نام کاربری
-                            </label>
-                            {{ form.stdcode }}
-                            <!--
-                    <input  style="color:#6555df;" 
-                        placeholder="987654321" 
-                        autocomplete="off" 
-                        id="stdCode" 
-                        type="text">
-                    -->
-                        </div>
 
-                        <div class="con-input">
-                            <label for="stdCode" style="color:#6555df;">
-                                نام
-                            </label>
-                            {{ form.firstName }}
-                        </div>
-                        <div class="con-input">
-                            <label for="stdCode" style="color:#6555df;">
-                                نام خانوادگی
-                            </label>
-                            {{ form.lastName}}
-                        </div>
-                        <label class="mt-3" for="password" style="color:#6555df;">
-                            رمز عبور
-                        </label>
-                        
+                <p style="direction:rtl;text-align:right;"> سلام {{ fname }} {{ lname }} <a
+                        href="{% url 'ulogout' %}">خروج ؟</a></p>
+                </h1>
+                <a href="#"><button id="logoutButton" class="btn-login txt" style="background-color:#6555df;">
+                        ثبت حاضری
+                    </button></a>
+                <a href="#" style="padding-top: 10px;"><button id="logoutButton" class="btn-login txt"
+                        style="background-color:#6555df;">
+                        کلاس‌های من
+                    </button></a>
+                <a href="#" style="padding-top: 10px;"><button id="logoutButton" class="btn-login txt"
+                        style="background-color:#6555df;">
+                        حاضری‌های من
+                    </button></a>
+                <footer class="btn-login-footer">
 
-                        <div class="Pcon-input">
-                            <div class="Pcon-input__text Pcon-input__input">
-                                <input spellcheck="false" oninput="handleInputText(event)" class="text" type="text">
-                            </div>
-                            <div class="Pcon-input__password Pcon-input__input">
-                                {{ form.password }}
-                                <!--
-                                <input id="password" autocomplete="off" oninput="handleInputPassword(event)"
-                                    class="password" type="password">
-                                -->
-                            </div>
-                            <div class="icns">
-                                <button onClick="handleClickHidden(event)">
-                                    <i class='hide bx bxs-hide'></i>
-                                    <i class='show bx bxs-show'></i>
-                            </div>
-                            <div class="effect"></div>
-                        </div>
-                        <label class="mt-3" for="password2" style="color:#6555df;">
-                            تکرار رمز عبور 
-                        </label>
-                        <div class="Pcon-input">
-                            <div class="Pcon-input__text Pcon-input__input">
-                                <input spellcheck="false" oninput="handleInputText(event)" class="text" type="text">
-                            </div>
-                            <div class="Pcon-input__password Pcon-input__input">
-                                {{ form.password2 }}
-                                <!--
-                                <input id="password" autocomplete="off" oninput="handleInputPassword(event)"
-                                    class="password" type="password">
-                                -->
-                            </div>
-                            <div class="icns">
-                                <button onClick="handleClickHidden(event)">
-                                    <i class='hide bx bxs-hide'></i>
-                                    <i class='show bx bxs-show'></i>
-                            </div>
-                            <div class="effect"></div>
-                        </div>
-                        <div class="con-forgot">
-                            <a  style="color:#6555df;" class="txt" href="{% url 'ulogin' %}">
-                        ورود ؟
-                   </a>
-                       </div>
-                        <div class="con-forgot">
-                            <!-- <a  style="color:#6555df;" class="txt" href="">
-                        فراموشی رمز ؟
-                    </a>-->
-                        </div>
-
-
-                    </div>
-
-                    <footer class="btn-login-footer">
-                        <button class="btn-login txt" style="background-color:#6555df;" type="submit">
-                            ثبت نام
-                        </button>
-                    </footer>
-                </form>
+                </footer>
                 {% endif %}
             </div>
         </div>
 
         <div id="lottie" style="height:100vh;"></div>
     </div>
+
     <script src='https://cdnjs.cloudflare.com/ajax/libs/bodymovin/5.7.1/lottie.min.js'></script>
     <script id="rendered-js">
         const conInput = document.querySelector('.Pcon-input');
