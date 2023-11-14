@@ -41,3 +41,43 @@ class User(AbstractBaseUser, PermissionsMixin):
     objects = UserManager()
     def get_absolute_url(self):
         return "/users/%i/" % (self.pk)
+
+
+class classModel(models.Model) :
+   className = models.CharField(max_length=128)
+   classDes=models.CharField(max_length=128)
+   classPass=models.CharField(max_length=32)
+   classCode=models.IntegerField()
+   classOwner=models.IntegerField()
+   classMakeTime=models.IntegerField()
+   classMemberLen=models.IntegerField()
+
+class whoWhereModel(models.Model):
+   whoWhereFirstName=models.CharField(max_length=70)
+   whoWhereLastName=models.CharField(max_length=70)
+   whoWhereStdCode=models.IntegerField()
+   whoWhereClassCode=models.IntegerField()
+   whoWhereJoinedTime=models.IntegerField()
+
+class classSessionModel(models.Model):
+   classSessionClassCode=models.IntegerField()
+   classSessionSessionCode=models.IntegerField()
+   classSessionStutus=models.CharField(max_length=10)
+   classSessionOpenTime=models.IntegerField()
+   classSessionOpenUntil=models.IntegerField()
+   classSessionHowManyUserDetect=models.IntegerField()
+   classSessionHowManyUserRecord=models.IntegerField()
+
+class sessionLog(models.Model):
+   sessionLogClassCode=models.IntegerField()
+   sessionLogSessionCode=models.IntegerField()
+   sessionLogStdCode=models.IntegerField()
+   sessionLogFaceCode=models.IntegerField()
+   sessionLogFaceDes=models.CharField(max_length=6000)
+   sessionLogTime=models.IntegerField()
+
+class sessionImage(models.Model):
+   sessionImageClassCode=models.IntegerField()
+   sessionImageSessionCode=models.IntegerField()
+   sessionImageImage=models.CharField(max_length=10000)
+   sessionImageTime=models.IntegerField()

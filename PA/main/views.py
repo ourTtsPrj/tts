@@ -5,6 +5,8 @@ from django.contrib.auth import get_user_model
 from .forms import *
 from .models import *
 from django.contrib.auth.decorators import login_required
+import random, time
+from django.http import HttpResponse
 
 def checkUserLogin(r) :
     return r.user.is_authenticated 
@@ -74,6 +76,29 @@ def ulogin(r) :
     else : 
         theLoginForm = loginForm()
     return render(r,"login.html",{"form":theLoginForm})
+@login_required
+def ucreateclass(r) :
+    if r.user.rank=="std":
+        return redirect("umain")
+    if r.method == "POST" :
+        print(r.POST)
+        theCreateClassForm = createclassForm(r.POST)
+        if theCreateClassForm.is_valid() :
+            theClassName = theCreateClassForm.cleaned_data.get("className")
+            thePassword = theCreateClassForm.cleaned_data.get("password")
+            theDesClass = theCreateClassForm.cleaned_data.get("desClass")
+            theRandonClassCode=random.randint(1000000,9999999)
+            theCreateTime=int(time.time())
+            classModel(className=theClassName,classDes=theDesClass,classPass=thePassword,classCode=theRandonClassCode,classOwner=r.user.stdcode,classMakeTime=theCreateTime,classMemberLen=0).save()
+    theNewClassForm=createclassForm()
+    return render(r,"createclass.html",{"form":theNewClassForm})
+
+
+# theUserClass = classModel.objects.filter(classOwner=r.user.stdcode)
+# for cls in theUserClass :
+# ...
+
+
 
 # Create your views here.
 

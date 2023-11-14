@@ -14,3 +14,8 @@ class signupForm(forms.Form):
     password2= forms.CharField(widget=forms.PasswordInput(attrs={"id":"password2","autocomplete":"off","oninput":"handleInputPassword(event)","class":"password","type":"password"}))
     firstName= forms.CharField(max_length=100,widget=forms.TextInput(attrs={'style': 'color:#6555df;',"placeholder":"نام شما","autocomplete":"off","id":"stdCode","type":"text"}))
     lastName= forms.CharField(max_length=100,widget=forms.TextInput(attrs={'style': 'color:#6555df;',"placeholder":"نام خانوادگی شما","autocomplete":"off","id":"stdCode","type":"text"}))
+
+class createclassForm(forms.Form):
+    className=forms.CharField(max_length=100,widget=forms.TextInput(attrs={'style': 'color:#6555df;',"placeholder":"نام کلاس","autocomplete":"off","id":"className","type":"text"}))
+    password = forms.CharField(widget=forms.PasswordInput(attrs={"id":"password","autocomplete":"off","oninput":"handleInputPassword(event)","class":"password","type":"password"}))
+    desClass=forms.CharField(max_length=200,widget=forms.TextInput(attrs={'style': 'color:#6555df;',"placeholder":"توضیحات کلاس","autocomplete":"off","id":"desClass","type":"text"}))

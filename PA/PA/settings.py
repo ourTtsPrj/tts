@@ -88,6 +88,9 @@ DATABASES = {
 
 DATABASES = {
 	'default': {
+        'OPTIONS': {
+            'sql_mode': 'traditional',
+        },
 		'ENGINE': 'django.db.backends.mysql',
 		'NAME': 'padb',
 		'USER': 'root',
