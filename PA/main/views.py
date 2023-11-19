@@ -79,7 +79,7 @@ def ulogin(r) :
 @login_required
 def ucreateclass(r) :
     if r.user.rank=="std":
-        return redirect("umain")
+        return redirect("umain") #daneshjo ba link natavanad vared shavad
     if r.method == "POST" :
         print(r.POST)
         theCreateClassForm = createclassForm(r.POST)
@@ -89,15 +89,44 @@ def ucreateclass(r) :
             theDesClass = theCreateClassForm.cleaned_data.get("desClass")
             theRandonClassCode=random.randint(1000000,9999999)
             theCreateTime=int(time.time())
-            classModel(className=theClassName,classDes=theDesClass,classPass=thePassword,classCode=theRandonClassCode,classOwner=r.user.stdcode,classMakeTime=theCreateTime,classMemberLen=0).save()
+            classModel(className=theClassName,classDes=theDesClass,classPass=thePassword,classCode=theRandonClassCode,classOwner=r.user.stdcode,classMakeTime=theCreateTime,classMemberLen=0,classHasActiveSession=False).save()
     theNewClassForm=createclassForm()
     return render(r,"createclass.html",{"form":theNewClassForm})
+@login_required
+def uListClass(r) :
+    return render(r,"listOfClass.html")
 
 
 # theUserClass = classModel.objects.filter(classOwner=r.user.stdcode)
+# listClassAll = {}
+# counter = 1
 # for cls in theUserClass :
-# ...
+#     listClassAll[counter] = {}
+#     counter += 1
+@login_required
+def uListClass(request):
+    
+    theUserClass = classModel.objects.filter(classOwner=request.user.stdcode)
+    listClassAll = {}
+    counter = 1
 
+    for cls in theUserClass:
+        
+        listClassAll[counter] = {
+            'class_name':cls.className ,  
+            'class_des':cls.classDes, 
+            'class_pass':cls.classPass, 
+            'class_code':cls.classCode, 
+            'class_memberlen':cls.classMemberLen, 
+            'class_hasactive':cls.classHasActiveSession, 
+
+
+        }
+        counter += 1
+    return render(request, "listOfClass.html", {'listClassAll': listClassAll})
+
+def uListClassDe(r,classcode):
+    pass
 
 
 # Create your views here.

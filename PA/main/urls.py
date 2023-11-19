@@ -8,6 +8,7 @@ urlpatterns = [
     path("profile/",uprofile,name="uprofile"),
     path("",umain,name="umain"),
     path("signup/",usignup,name="usignup"),
-    path("createclass/",ucreateclass,name="ucreateclass"),
-    #path("myclasses/",umyclasses,name="umyclasses"),
+    path("createClass/",ucreateclass,name="ucreateclass"),
+    path("listClass/",uListClass,name="ulistclass"),
+    path("listClass/<int:classcode>",uListClassDe,name="ulistclassde"),
 ]

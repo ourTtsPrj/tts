@@ -51,6 +51,7 @@ class classModel(models.Model) :
    classOwner=models.IntegerField()
    classMakeTime=models.IntegerField()
    classMemberLen=models.IntegerField()
+   classHasActiveSession = models.BooleanField(default=False)
 
 class whoWhereModel(models.Model):
    whoWhereFirstName=models.CharField(max_length=70)
