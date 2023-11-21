@@ -96,13 +96,6 @@ def ucreateclass(r) :
 def uListClass(r) :
     return render(r,"listOfClass.html")
 
-
-# theUserClass = classModel.objects.filter(classOwner=r.user.stdcode)
-# listClassAll = {}
-# counter = 1
-# for cls in theUserClass :
-#     listClassAll[counter] = {}
-#     counter += 1
 @login_required
 def uListClass(request):
     
@@ -125,6 +118,22 @@ def uListClass(request):
         counter += 1
     return render(request, "listOfClass.html", {'listClassAll': listClassAll})
 
+@login_required
+def uNewSession(r) :
+    if r.user.rank=="std":
+        return redirect("umain") #daneshjo ba link natavanad vared shavad
+    if r.method == "POST" :
+        print(r.POST)
+        theNewSessionForm = newSessionForm(r.POST)
+        if theNewSessionForm.is_valid() :
+            # theSessionName = theNewSessionForm.cleaned_data.get("sesseionName")
+            # thePassword = theNewSessionForm.cleaned_data.get("password")
+            # theDesSession = theNewSessionForm.cleaned_data.get("desSession")
+            theRandonSessionCode=random.randint(1000000,9999999)
+            theCreateTime=int(time.time())
+            # classSessionModel(sessionName=theSessionName,sessionDes=theDesSession,sessionPass=thePassword,sessionCode=theRandonSessionCode,sessionOwner=r.user.stdcode,sessionMakeTime=theCreateTime,sessionMemberLen=0,sessionHasActiveSession=False).save()
+    theNewSessionForm=newSessionForm()
+    return render(r,"newSession.html",{"form":theNewSessionForm})
 def uListClassDe(r,classcode):
     pass
 

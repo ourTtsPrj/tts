@@ -32,7 +32,7 @@
                   <td>{{ cvalue.class_code }}</td>
                   <td>{{ cvalue.class_memberlen }}</td>
                   <td>{{ cvalue.class_hasactive }}</td>
-                  <td>جلسه جدید - لیست جلسات</td>
+                  <td><a href="{% url 'unewsession' %}">جلسه جدید</a>لیست جلسات</td>
                 </tr>
               {% endfor %}
             </tbody>
