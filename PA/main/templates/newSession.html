@@ -417,16 +417,16 @@
                 <h1 class="hd-txt" style="color:#6555df;">
                     جلسه جدید
                 </h1>
+                <p style="direction:rtl;text-align:right;"> <a href="{% url 'ulistclass' %}">برگشت ؟</a></p>
                 {% if msg %}
-                    <p> {{msg}} </p>
+                <p> {{msg}} </p>
                 {% else %}
-                <p style="direction:rtl;text-align:right;">  <a href="{% url 'ulistclass' %}">برگشت ؟</a></p>
-                <form action="#" method="post">
+                <form action="#" method="post" enctype="multipart/form-data">
                     {% csrf_token %}
                     <div class="con-inputs">
                         <div class="con-input">
                             <label for="sesseionName" style="color:#6555df;">
-                                نام جلسه
+                                بارگذاری عکس
                             </label>
                             {{ form.file_field }}
                             <!--
@@ -437,39 +437,11 @@
                         type="text">
                     -->
                         </div>
-                        <div class="con-input">
-                            <label for="desSession" style="color:#6555df;">
-                                توضیحات کلاس 
-                            </label>
-                            <!-- {{ form.desSession}} -->
-                        </div>
-                        <label class="mt-3" for="password" style="color:#6555df;">
-                            رمز کلاس
-                        </label>
-
-                        <div class="Pcon-input">
-                            <div class="Pcon-input__text Pcon-input__input">
-                                <input spellcheck="false" oninput="handleInputText(event)" class="text" type="text">
-                            </div>
-                            <div class="Pcon-input__password Pcon-input__input">
-                                <!-- {{ form.password }} -->
-                                <!--
-                                <input id="password" autocomplete="off" oninput="handleInputPassword(event)"
-                                    class="password" type="password">
-                                -->
-                            </div>
-                            <div class="icns">
-                                <button onClick="handleClickHidden(event)">
-                                    <i class='hide bx bxs-hide'></i>
-                                    <i class='show bx bxs-show'></i>
-                            </div>
-                            
-                            <div class="effect"></div>
-                        </div>
                         <br>
-                        <a href="{% url 'unewsession' %}"><button id="logoutButton" class="btn-login txt" style="background-color:#6555df;">
-                            ساخت جلسه جدید
-                        </button></a>
+                        <a href="#"><button id="logoutButton" class="btn-login txt"
+                                style="background-color:#6555df;">
+                                ساخت جلسه جدید
+                            </button></a>
 
                     </div>
 

@@ -80,5 +80,7 @@ class sessionLog(models.Model):
 class sessionImage(models.Model):
    sessionImageClassCode=models.IntegerField()
    sessionImageSessionCode=models.IntegerField()
-   sessionImageImage=models.CharField(max_length=10000)
+   sessionFakeFileName=models.CharField(max_length=50,default="")
+   sessionImageImage=models.CharField(max_length=30)
+   sessionImageFaceJson=models.TextField(max_length=65535,default="")
    sessionImageTime=models.IntegerField()

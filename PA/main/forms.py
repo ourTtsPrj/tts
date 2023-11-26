@@ -19,8 +19,21 @@ class createclassForm(forms.Form):
     className=forms.CharField(max_length=100,widget=forms.TextInput(attrs={'style': 'color:#6555df;',"placeholder":"نام کلاس","autocomplete":"off","id":"className","type":"text"}))
     password = forms.CharField(widget=forms.PasswordInput(attrs={"id":"password","autocomplete":"off","oninput":"handleInputPassword(event)","class":"password","type":"password"}))
     desClass=forms.CharField(max_length=200,widget=forms.TextInput(attrs={'style': 'color:#6555df;',"placeholder":"توضیحات کلاس","autocomplete":"off","id":"desClass","type":"text"}))
+
+class MultipleFileInput(forms.ClearableFileInput):
+    allow_multiple_selected = True
+class MultipleFileField(forms.FileField):
+    def __init__(self, *args, **kwargs):
+        kwargs.setdefault("widget", MultipleFileInput())
+        super().__init__(*args, **kwargs)
+
+    def clean(self, data, initial=None):
+        single_file_clean = super().clean
+        if isinstance(data, (list, tuple)):
+            result = [single_file_clean(d, initial) for d in data]
+        else:
+            result = single_file_clean(data, initial)
+        return result
 class newSessionForm(forms.Form):
-    # sesseionName=forms.CharField(max_length=100,widget=forms.TextInput(attrs={'style': 'color:#6555df;',"placeholder":"نام جلسه","autocomplete":"off","id":"sesseionName","type":"text"}))
-    # password = forms.CharField(widget=forms.PasswordInput(attrs={"id":"password","autocomplete":"off","oninput":"handleInputPassword(event)","class":"password","type":"password"}))
-    # desSession=forms.CharField(max_length=200,widget=forms.TextInput(attrs={'style': 'color:#6555df;',"placeholder":"توضیحات جلسه","autocomplete":"off","id":"desSession","type":"text"}))
-    file_field = forms.FileField(widget=forms.ClearableFileInput(attrs={'multiple': True}))
+    # file_field = forms.FileField(widget=forms.ClearableFileInput(attrs={'allow_multiple_selected': True}))
+    file_field = MultipleFileField()

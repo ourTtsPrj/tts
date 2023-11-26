@@ -11,7 +11,8 @@ urlpatterns = [
     path("createClass/",ucreateclass,name="ucreateclass"),
     path("listClass/",uListClass,name="ulistclass"),
     path("listClass/<int:classcode>",uListClassDe,name="ulistclassde"),#name mohem hast,kar ba moteghaiierha
-    path("newSession/",uNewSession,name="unewsession"),
+    path("newSession/<int:theClassCode>",uNewSession,name="unewsession"),
+    path("si/<str:fakeName>",showImage,name="showimage"),
 
     
 ]
