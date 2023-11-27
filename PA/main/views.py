@@ -1,7 +1,7 @@
 from django.contrib.auth import login, authenticate, logout
 from django.contrib.auth.decorators import login_required
+import random, time, string, os, requests, json, cv2, io
 from django.core.files.storage import FileSystemStorage
-import random, time, string, os, requests, json, cv2
 from django.http import FileResponse, JsonResponse
 from flask_restful import Api, Resource, abort
 from django.contrib.auth import get_user_model
@@ -181,7 +181,7 @@ def uNewSession(r,theClassCode) :
             for theTempFile in theAllFiles :
                 theFileEx = getImageExtension(theTempFile.name)
                 theRandFileName = generateRandomString(25)
-                theFilePath = f"theApi/iMgrAW/{theRandFileName}{theFileEx}"
+                theFilePath = f"{rawImagePath}{theRandFileName}{theFileEx}"
                 fs.save(theFilePath, theTempFile)
                 if theFileEx != ".jpg" :
                     convertToJpg(theFilePath)
@@ -236,13 +236,6 @@ def uListClassDe(r,classcode):
         theResult[theCounter] = {"sCode":tCS.classSessionSessionCode,"sStatus":tCS.classSessionStutus,"sStart":tCS.classSessionOpenTime,"sEnd":theEndIn,"sDetect":tCS.classSessionHowManyUserDetect,"sRecord":tCS.classSessionHowManyUserRecord,"sImg":theSFileString}
         theCounter += 1    
     return render(r,"listOfClassDe.html",{"listSesstionAll":theResult})
-def showImage(r,fakeName) :
-    makeFileNameValid = sessionImage.objects.filter(sessionFakeFileName=fakeName)
-    if len(makeFileNameValid) <= 0 :
-        return redirect("uprofile")
-    fileName = makeFileNameValid[0].sessionImageImage
-    imagePath = f"theApi/iMgDeTECTfaCe/{fileName}"
-    return FileResponse(open(imagePath, 'rb'), content_type='image/png')
 def detectFace(r,key,query) :
     if key != "a" :
         return redirect("umain")
@@ -262,10 +255,29 @@ def detectFace(r,key,query) :
             faceBox = rData[2]
             fileInfo[fileName]["faceBox"] = faceBox
     return JsonResponse({"ok":True,"face":allFace,"info":fileInfo})
-
-
-
-"""def tf(r) :
+@login_required
+def showImage(r,fakeName) :
+    makeFileNameValid = sessionImage.objects.filter(sessionFakeFileName=fakeName)
+    if len(makeFileNameValid) <= 0 :
+        return redirect("uprofile")
+    fileName = makeFileNameValid[0].sessionImageImage
+    imagePath = f"{detectImagePath}{fileName}"
+    return FileResponse(open(imagePath, 'rb'), content_type='image/png')
+def cropImage(r,fakeName,x,y,w,h) :
+    makeFileNameValid = sessionImage.objects.filter(sessionFakeFileName=fakeName)
+    if len(makeFileNameValid) <= 0 :
+        return redirect("uprofile")
+    fileName = makeFileNameValid[0].sessionImageImage
+    imagePath = f"{rawImagePath}{fileName}"
+    
+    image = Image.open(imagePath)
+    # x, y, w, h = 50, 50, 200, 200
+    croppedImage = image.crop((x - 35, y - 35, w+x+75, h+y+75))
+    byteArr = io.BytesIO()
+    croppedImage.save(byteArr, format='PNG')
+    byteArr.seek(0)
+    return FileResponse(byteArr, content_type='image/png')
+    """def tf(r) :
     if r.method == "POST" :
         ttff = testForm(r.POST)
         if ttff.is_valid() :
