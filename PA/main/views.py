@@ -1,16 +1,21 @@
+from django.contrib.auth import login, authenticate, logout
+from django.contrib.auth.decorators import login_required
+from django.core.files.storage import FileSystemStorage
+import random, time, string, os, requests, json, cv2
+from django.http import FileResponse, JsonResponse
+from flask_restful import Api, Resource, abort
+from django.contrib.auth import get_user_model
 from django.shortcuts import render,redirect
 from django.urls import reverse
-from django.contrib.auth import login, authenticate, logout
-from django.contrib.auth import get_user_model
-from .forms import *
-from .models import *
-from django.contrib.auth.decorators import login_required
-import random, time, string, os, requests, json
-from django.http import HttpResponse
-from django.core.files.storage import FileSystemStorage
+from mtcnn.mtcnn import MTCNN
+from matplotlib import pyplot
+from flask import Flask
 from PIL import Image
-from django.http import FileResponse
+from .models import *
+from .forms import *
 
+rawImagePath = "theApi/iMgrAW/"
+detectImagePath = "theApi/iMgDeTECTfaCe/"
 def convertToJpg(imagePath):
     img = Image.open(imagePath)
     png_path = imagePath.rsplit('.', 1)[0] + '.jpg'
@@ -23,6 +28,23 @@ def generateRandomString(length):
     letters = string.ascii_letters
     randomString = ''.join(random.choice(letters) for i in range(length))
     return randomString
+def drawImageWithBox(fileName,resultList,cc,faceBox) :
+    global rawImagePath
+    img = cv2.imread(f"{rawImagePath}{fileName}")
+    for result in resultList :
+        faceBox[cc] = result['box']
+        print(cc,result)
+        x,y,w,h = result['box']
+        cv2.rectangle(img, (x, y), (x+w, y+h), (240, 240, 14), 2)
+        cv2.putText(img, str(cc), (x+10, y-10), cv2.FONT_HERSHEY_SIMPLEX, 0.9, (240, 240, 14), 2)
+        cc += 1
+        for key,value in result['keypoints'].items() :
+            pass
+            #cv2.circle(img,value,2,(240, 240, 14),-1)
+    cv2.imwrite(f"{detectImagePath}{fileName}",img)
+    return [len(resultList),cc,faceBox]
+
+
 def checkAllSesstionAndCloseEndedSesstion() :
     theAllOpenSession = classSessionModel.objects.filter(classSessionStutus="open")
     for theOpenS in theAllOpenSession :
@@ -30,8 +52,6 @@ def checkAllSesstionAndCloseEndedSesstion() :
             print(theOpenS.classSessionSessionCode)
             classSessionModel.objects.filter(classSessionClassCode=theOpenS.classSessionClassCode,classSessionSessionCode=theOpenS.classSessionSessionCode,classSessionStutus="open").update(classSessionStutus="close")
             classModel.objects.filter(classCode=theOpenS.classSessionClassCode).update(classHasActiveSession=False)
-
-
 def checkUserLogin(r) :
     return r.user.is_authenticated 
 
@@ -166,7 +186,10 @@ def uNewSession(r,theClassCode) :
                 if theFileEx != ".jpg" :
                     convertToJpg(theFilePath)
                 theFileNamesAll += f"{theRandFileName}.jpg,"
-            res = requests.get(f"http://127.0.0.1:5000/detect/{theFileNamesAll}")
+            theUrlForDetectFace = reverse("detectface",args=["a",theFileNamesAll])
+            theUrlForDetectFace = r.build_absolute_uri(theUrlForDetectFace)
+            # print(theUrlForDetectFace)
+            res = requests.get(theUrlForDetectFace)
             theDetectFaceRes = json.loads(res.text)
             if(theDetectFaceRes['face'] <= 0) :
                 theNewSessionForm=newSessionForm()
@@ -220,8 +243,25 @@ def showImage(r,fakeName) :
     fileName = makeFileNameValid[0].sessionImageImage
     imagePath = f"theApi/iMgDeTECTfaCe/{fileName}"
     return FileResponse(open(imagePath, 'rb'), content_type='image/png')
-    
-# Create your views here.
+def detectFace(r,key,query) :
+    if key != "a" :
+        return redirect("umain")
+    cc = 1
+    allFace = 0
+    fileInfo = {}
+    for fileName in query.split(",") :
+        if fileName :
+            faceBox = {}
+            pixels = pyplot.imread(f"{rawImagePath}{fileName}")
+            detector = MTCNN()
+            faces = detector.detect_faces(pixels)
+            rData = drawImageWithBox(fileName,faces,cc,faceBox)
+            fileInfo[fileName] = {"face":rData[0],"from":cc,"to":rData[1] - 1,"faceBox":{}}
+            cc = rData[1]
+            allFace += rData[0]
+            faceBox = rData[2]
+            fileInfo[fileName]["faceBox"] = faceBox
+    return JsonResponse({"ok":True,"face":allFace,"info":fileInfo})
 
 
 
