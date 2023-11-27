@@ -54,8 +54,8 @@ class classModel(models.Model) :
    classHasActiveSession = models.BooleanField(default=False)
 
 class whoWhereModel(models.Model):
-   whoWhereFirstName=models.CharField(max_length=70)
-   whoWhereLastName=models.CharField(max_length=70)
+   # whoWhereFirstName=models.CharField(max_length=70)
+   # whoWhereLastName=models.CharField(max_length=70)
    whoWhereStdCode=models.IntegerField()
    whoWhereClassCode=models.IntegerField()
    whoWhereJoinedTime=models.IntegerField()

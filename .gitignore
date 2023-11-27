@@ -175,3 +175,4 @@ cython_debug/
 PA/main/migrations/*
 PA/theApi/iMgDeTECTfaCe/*
 PA/theApi/iMgrAW/*
+PA/main/migrations/*
