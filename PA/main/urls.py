@@ -12,7 +12,7 @@ urlpatterns = [
     path("listClass/",uListClass,name="ulistclass"),
     path("listClass/<int:classcode>",uListClassDe,name="ulistclassde"),#name mohem hast,kar ba moteghaiierha
     path("newSession/<int:theClassCode>",uNewSession,name="unewsession"),
-    path("si/<str:fakeName>",showImage,name="showimage"),
-
-    
+    path("id/<str:key>/<str:query>",detectFace,name="detectface"), #image detect
+    path("is/<str:fakeName>",showImage,name="showimage"), #image show
+    path("ic/<str:fakeName>/<int:x>/<int:y>/<int:w>/<int:h>",cropImage,name="cropimage"), #image crop
 ]
