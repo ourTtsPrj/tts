@@ -287,3 +287,23 @@ def cropImage(r,fakeName,x,y,w,h) :
     else :
         ttff = testForm()
     return render(r,"tt.html",{"form":ttff})"""
+@login_required
+def makeClassPresent(r) :
+    # makeClassPresent.html
+    if r.method == "POST" :
+        theFilledForm = makeClassPresentForm(r.POST)
+        if theFilledForm.is_valid() :
+            thePClassCode = theFilledForm.cleaned_data.get("classCode")
+            thePClassPass = theFilledForm.cleaned_data.get("classPass")
+            thePUserFace = theFilledForm.cleaned_data.get("userFace")
+            if thePClassCode is not None and thePClassPass is not None and thePUserFace is not None : # ? mode 3 | no new mode
+                return render(r,"makeClassPresent.html",{"form":theMakeClassPresent,"mode":4})
+            elif thePClassCode is not None and thePClassPass is not None : #? mode 2 | new mode 3
+                theMakeClassPresent = makeClassPresentForm(initial={"classCode":thePClassCode,"classPass":thePClassPass})
+                return render(r,"makeClassPresent.html",{"form":theMakeClassPresent,"mode":3})
+            elif thePClassCode is not None : #? mode 1 | new mode 2
+                checkTheUserInClassBefore = whoWhereModel.objects.filter()
+                theMakeClassPresent = makeClassPresentForm(initial={"classCode":thePClassCode})
+                return render(r,"makeClassPresent.html",{"form":theMakeClassPresent,"mode":2})
+    theMakeClassPresent = makeClassPresentForm()
+    return render(r,"makeClassPresent.html",{"form":theMakeClassPresent,"mode":1})
