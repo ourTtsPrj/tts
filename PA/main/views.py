@@ -43,8 +43,42 @@ def drawImageWithBox(fileName,resultList,cc,faceBox) :
             #cv2.circle(img,value,2,(240, 240, 14),-1)
     cv2.imwrite(f"{detectImagePath}{fileName}",img)
     return [len(resultList),cc,faceBox]
-
-
+def getAllLinkOfSessionImage(classCode) :
+    theClassForCheckSe = classModel.objects.filter(classCode=classCode)
+    if len(theClassForCheckSe) < 0 :
+        return
+    theClassForCheckSe = theClassForCheckSe[0]
+    if theClassForCheckSe.classHasActiveSession == False :
+        return
+    theThisClassSeCode = classSessionModel.objects.filter(classSessionClassCode=classCode,classSessionStutus="open")[0].classSessionSessionCode
+    theImges = sessionImage.objects.filter(sessionImageClassCode=classCode,sessionImageSessionCode=theThisClassSeCode)
+    rFR = {}
+    counter = 1
+    for tci in theImges :
+        rFR[counter] = {"url":reverse("showimage",args=[tci.sessionFakeFileName])}
+        counter += 1
+    return rFR
+def findFaceBoxInActiveSe(classCode,userFaceId) :
+    theClassForCheckSe = classModel.objects.filter(classCode=classCode)
+    if len(theClassForCheckSe) < 0 :
+        return
+    theClassForCheckSe = theClassForCheckSe[0]
+    if theClassForCheckSe.classHasActiveSession == False :
+        return
+    theThisClassSeCode = classSessionModel.objects.filter(classSessionClassCode=classCode,classSessionStutus="open")[0].classSessionSessionCode
+    theImges = sessionImage.objects.filter(sessionImageClassCode=classCode,sessionImageSessionCode=theThisClassSeCode)
+    isFaceIdValid = False
+    theUserFaceBox = None
+    theUserFakeFileName = None
+    for tic in theImges :
+        theThisImgFaceJson = json.loads(tic.sessionImageFaceJson.replace("'",'"'))
+        if userFaceId >= theThisImgFaceJson['from'] and userFaceId <= theThisImgFaceJson['to'] :
+            isFaceIdValid = True
+            theUserFaceBox = theThisImgFaceJson['faceBox'][str(userFaceId)]
+            theUserFakeFileName = tic.sessionFakeFileName
+    if isFaceIdValid == False :
+        return "bad face id"
+    return [isFaceIdValid,theUserFakeFileName,theUserFaceBox]
 def checkAllSesstionAndCloseEndedSesstion() :
     theAllOpenSession = classSessionModel.objects.filter(classSessionStutus="open")
     for theOpenS in theAllOpenSession :
@@ -122,7 +156,7 @@ def ulogin(r) :
     return render(r,"login.html",{"form":theLoginForm})
 @login_required
 def ucreateclass(r) :
-    if r.user.rank=="std":
+    if r.user.rank != "teach":
         return redirect("umain") #daneshjo ba link natavanad vared shavad
     checkAllSesstionAndCloseEndedSesstion()
     if r.method == "POST" :
@@ -138,10 +172,6 @@ def ucreateclass(r) :
             return redirect("ulistclass")
     theNewClassForm=createclassForm()
     return render(r,"createclass.html",{"form":theNewClassForm})
-    
-@login_required
-def uListClass(r) :
-    return render(r,"listOfClass.html")
 
 @login_required
 def uListClass(request):
@@ -169,7 +199,7 @@ def uListClass(request):
 
 @login_required
 def uNewSession(r,theClassCode) :
-    if r.user.rank=="std":
+    if r.user.rank != "teach" :
         return redirect("umain") #daneshjo ba link natavanad vared shavad
     if r.method == "POST" :
         theNewSessionForm = newSessionForm(r.POST,r.FILES)
@@ -213,7 +243,7 @@ def uNewSession(r,theClassCode) :
         theNewSessionForm=newSessionForm()
         return render(r,"newSession.html",{"form":theNewSessionForm})
 def uListClassDe(r,classcode):
-    if r.user.rank=="std":
+    if r.user.rank != "teach" :
         return redirect("umain") #daneshjo ba link natavanad vared shavad
     checkAllSesstionAndCloseEndedSesstion()
     checkTheClassId = classModel.objects.filter(classCode=classcode)
@@ -233,8 +263,8 @@ def uListClassDe(r,classcode):
         theEndIn = (tCS.classSessionOpenTime + tCS.classSessionOpenUntil) - int(time.time())
         if theEndIn < 0 :
             theEndIn = 0
-        theResult[theCounter] = {"sCode":tCS.classSessionSessionCode,"sStatus":tCS.classSessionStutus,"sStart":tCS.classSessionOpenTime,"sEnd":theEndIn,"sDetect":tCS.classSessionHowManyUserDetect,"sRecord":tCS.classSessionHowManyUserRecord,"sImg":theSFileString}
-        theCounter += 1    
+        theResult[theCounter] = {"sCode":tCS.classSessionSessionCode,"sStatus":tCS.classSessionStutus,"sStart":tCS.classSessionOpenTime,"sEnd":theEndIn,"sDetect":tCS.classSessionHowManyUserDetect,"sRecord":tCS.classSessionHowManyUserRecord,"sImg":theSFileString,"confrimUrl":reverse("confirmlist",args=[classcode,tCS.classSessionSessionCode])}
+        theCounter += 1
     return render(r,"listOfClassDe.html",{"listSesstionAll":theResult})
 def detectFace(r,key,query) :
     if key != "a" :
@@ -277,13 +307,119 @@ def cropImage(r,fakeName,x,y,w,h) :
     croppedImage.save(byteArr, format='PNG')
     byteArr.seek(0)
     return FileResponse(byteArr, content_type='image/png')
-    """def tf(r) :
+@login_required
+def makeClassPresent(r) :
+    checkAllSesstionAndCloseEndedSesstion()
+    # makeClassPresent.html
     if r.method == "POST" :
-        ttff = testForm(r.POST)
-        if ttff.is_valid() :
-            theName = ttff['name'].value()
-            theName = ttff.cleaned_data.get('name')
-            return render(r,"tt.html",{"msg":f"tnx {theName}"})
-    else :
-        ttff = testForm()
-    return render(r,"tt.html",{"form":ttff})"""
+        theFilledForm = makeClassPresentForm(r.POST)
+        if theFilledForm.is_valid() :
+            thePClassCode = theFilledForm.cleaned_data.get("classCode")
+            thePClassPass = theFilledForm.cleaned_data.get("classPass")
+            thePUserFace = theFilledForm.cleaned_data.get("userFace")
+            if thePClassCode is not None and thePClassPass is not None and thePUserFace is not None : # ? mode 3 | no new mode
+                checkClassE = classModel.objects.filter(classCode=thePClassCode)
+                if len(checkClassE) <= 0 :
+                    return render(r,"makeClassPresent.html",{"form":makeClassPresentForm(),"mode":1,"msg":"کد کلاس اشتباه می‌باشد"})
+                checkTheUserInClassBefore = whoWhereModel.objects.filter(whoWhereStdCode=r.user.stdcode)
+                if len(checkTheUserInClassBefore) > 0 :
+                    theMakeClassPresent = makeClassPresentForm(initial={"classCode":thePClassCode,"classPass":checkClassE[0].classPass})
+                    if checkClassE[0].classHasActiveSession == False :
+                        return render(r,"makeClassPresent.html",{"form":makeClassPresentForm(),"mode":1,"msg":"در حال حاضر جلسه فعالی برای ثبت حاضری وجود ندارد"})
+                checkUserFaceId = cropImageMinimal(r,thePClassCode,thePUserFace)
+                if type(checkUserFaceId) is bool :
+                    theMakeClassPresent = makeClassPresentForm(initial={"classCode":thePClassCode,"classPass":thePClassPass})
+                    return render(r,"makeClassPresent.html",{"form":theMakeClassPresent,"mode":3,"msg":"شماره چهره وارد شده متعبر نمی‌باشد"})
+                userFaceIdUrl = reverse("cropimageminimal",args=[thePClassCode,thePUserFace])
+                theThisClassSeCode = classSessionModel.objects.filter(classSessionClassCode=thePClassCode,classSessionStutus="open")[0]
+                checkUserSetPABefore = sessionLog.objects.filter(sessionLogClassCode=thePClassCode,sessionLogSessionCode=theThisClassSeCode.classSessionSessionCode,sessionLogStdCode=r.user.stdcode)
+                theSomeDataFromInCode = findFaceBoxInActiveSe(thePClassCode,thePUserFace)
+                theJsonForDes = json.dumps({"fakeFile":theSomeDataFromInCode[1],"faceBox":theSomeDataFromInCode[2]})
+                if len(checkUserSetPABefore) > 0 :
+                    checkUserSetPABefore.update(sessionLogFaceCode=thePUserFace,sessionLogFaceDes=theJsonForDes,sessionLogTime=int(time.time()))
+                else :
+                    sessionLog(sessionLogClassCode=thePClassCode,sessionLogSessionCode=theThisClassSeCode.classSessionSessionCode,sessionLogStdCode=r.user.stdcode,sessionLogFaceCode=thePUserFace,sessionLogFaceDes=theJsonForDes,sessionLogTime=int(time.time())).save()
+                    classSessionModel.objects.filter(classSessionClassCode=thePClassCode,classSessionStutus="open").update(classSessionHowManyUserRecord=(theThisClassSeCode.classSessionHowManyUserRecord + 1))
+                theMakeClassPresent = makeClassPresentForm(initial={"classCode":thePClassCode,"classPass":thePClassPass,"userFace":thePUserFace})
+                return render(r,"makeClassPresent.html",{"form":theMakeClassPresent,"mode":3,"theCroppedUserFace":userFaceIdUrl,"msg":"حاضری شما باموفقیت ثبت شد"}) 
+            
+            
+            elif thePClassCode is not None and thePClassPass is not None : #? mode 2 | new mode 3
+                checkClassE = classModel.objects.filter(classCode=thePClassCode,classPass=thePClassPass)
+                if len(checkClassE) <= 0 :
+                    return render(r,"makeClassPresent.html",{"form":makeClassPresentForm(),"mode":1,"msg":"کد و یا رمز کلاس اشتباه می‌باشد"})
+                checkTheUserInClassBefore = whoWhereModel.objects.filter(whoWhereStdCode=r.user.stdcode)
+                if len(checkTheUserInClassBefore) <= 0 :
+                    whoWhereModel(whoWhereStdCode=r.user.stdcode,whoWhereClassCode=thePClassCode,whoWhereJoinedTime=int(time.time())).save()
+
+                if checkClassE[0].classHasActiveSession == False :
+                    return render(r,"makeClassPresent.html",{"form":makeClassPresentForm(),"mode":1,"msg":"در حال حاضر جلسه فعالی برای ثبت حاضری وجود ندارد"})
+                
+                theLinkOfPhotos = getAllLinkOfSessionImage(thePClassCode)
+                theMakeClassPresent = makeClassPresentForm(initial={"classCode":thePClassCode,"classPass":thePClassPass})
+                return render(r,"makeClassPresent.html",{"form":theMakeClassPresent,"mode":3,"msg":"شماره چهره خود را وارد کنید","theImg":theLinkOfPhotos})
+            
+            
+            elif thePClassCode is not None : #? mode 1 | new mode 2
+                checkClassE = classModel.objects.filter(classCode=thePClassCode)
+                if len(checkClassE) <= 0 :
+                    return render(r,"makeClassPresent.html",{"form":makeClassPresentForm(),"mode":1,"msg":"کد کلاس اشتباه می‌باشد"})
+                checkTheUserInClassBefore = whoWhereModel.objects.filter(whoWhereStdCode=r.user.stdcode)
+                if len(checkTheUserInClassBefore) > 0 :
+                    theMakeClassPresent = makeClassPresentForm(initial={"classCode":thePClassCode,"classPass":checkClassE[0].classPass})
+                    if checkClassE[0].classHasActiveSession == False :
+                        return render(r,"makeClassPresent.html",{"form":makeClassPresentForm(),"mode":1,"msg":"در حال حاضر جلسه فعالی برای ثبت حاضری وجود ندارد"})
+                    
+                    theThisClassSeCode = classSessionModel.objects.filter(classSessionClassCode=thePClassCode,classSessionStutus="open")[0].classSessionSessionCode
+                    checkUserSetPABefore = sessionLog.objects.filter(sessionLogClassCode=thePClassCode,sessionLogSessionCode=theThisClassSeCode,sessionLogStdCode=r.user.stdcode)
+                    theLinkOfPhotos = getAllLinkOfSessionImage(thePClassCode)
+                    if len(checkUserSetPABefore) > 0 :
+                        userFaceIdUrl = reverse("cropimageminimal",args=[thePClassCode,checkUserSetPABefore[0].sessionLogFaceCode])
+                        theMakeClassPresent = makeClassPresentForm(initial={"classCode":thePClassCode,"classPass":checkClassE[0].classPass,"userFace":checkUserSetPABefore[0].sessionLogFaceCode})
+                        return render(r,"makeClassPresent.html",{"form":theMakeClassPresent,"mode":3,"theCroppedUserFace":userFaceIdUrl,"msg":"شما قبلا حاضری خود را ثبت کرده‌اید می‌توانید شماره چهره را تغییر دهید","theImg":theLinkOfPhotos}) 
+
+                    return render(r,"makeClassPresent.html",{"form":theMakeClassPresent,"mode":3,"msg":"شماره چهره خود را وارد کنید","theImg":theLinkOfPhotos})
+                theMakeClassPresent = makeClassPresentForm(initial={"classCode":thePClassCode})
+                return render(r,"makeClassPresent.html",{"form":theMakeClassPresent,"mode":2,"msg":"رمز کلاس را وارد کنید"})
+
+
+    theMakeClassPresent = makeClassPresentForm()
+    return render(r,"makeClassPresent.html",{"form":theMakeClassPresent,"mode":1,"msg":"پس از ثبت اولین حاضری شما عضو کلاس خواهید شد"})
+@login_required
+def cropImageMinimal(r,classCode,faceId) :
+    getFaceInfo = findFaceBoxInActiveSe(classCode,faceId)
+    if type(getFaceInfo) is list :
+        return cropImage(r,getFaceInfo[1],getFaceInfo[2][0],getFaceInfo[2][1],getFaceInfo[2][2],getFaceInfo[2][3])
+    return False
+def confirmList(r,theClassCode,sessionCode) :
+    if r.user.rank != "teach" :
+        return redirect("umain") #daneshjo ba link natavanad vared shavad
+    checkTheClassAndSession = classSessionModel.objects.filter(classSessionClassCode=theClassCode,classSessionSessionCode=sessionCode)
+    if len(checkTheClassAndSession) <= 0 :
+        return redirect('umain')
+    theAllSessionLog = sessionLog.objects.filter(sessionLogClassCode=theClassCode,sessionLogSessionCode=sessionCode)
+    rFR = {}
+    counter = 1
+    for theasl in theAllSessionLog :
+        theUserDes = json.loads(theasl.sessionLogFaceDes)
+        theUserFakeFileName = theUserDes["fakeFile"]
+        theUserFakeFaceBox = theUserDes["faceBox"]
+        rFR[counter] = {"codeClass":theClassCode,"codeSe":sessionCode,"sCode":theasl.sessionLogStdCode,"fCode":theasl.sessionLogFaceCode,"faceUrl":reverse("cropimage",args=[theUserFakeFileName,theUserFakeFaceBox[0],theUserFakeFaceBox[1],theUserFakeFaceBox[2],theUserFakeFaceBox[3]]),"rTime":theasl.sessionLogTime}
+        counter += 1
+    theBackLink = reverse("ulistclassde",args=[theClassCode])
+    return render(r,"confirmList.html",{"listSesstionAll":rFR,"backLink":theBackLink,"theTitle":"لیست تایید جلسه"})
+@login_required
+def listOfUserPresent(r) :
+    theAllSessionLog = sessionLog.objects.filter(sessionLogStdCode=r.user.stdcode)
+    rFR = {}
+    counter = 1
+    for theasl in theAllSessionLog :
+        theUserDes = json.loads(theasl.sessionLogFaceDes)
+        theUserFakeFileName = theUserDes["fakeFile"]
+        theUserFakeFaceBox = theUserDes["faceBox"]
+        rFR[counter] = {"codeClass":theasl.sessionLogClassCode,"codeSe":theasl.sessionLogSessionCode,"sCode":theasl.sessionLogStdCode,"fCode":theasl.sessionLogFaceCode,"faceUrl":reverse("cropimage",args=[theUserFakeFileName,theUserFakeFaceBox[0],theUserFakeFaceBox[1],theUserFakeFaceBox[2],theUserFakeFaceBox[3]]),"rTime":theasl.sessionLogTime}
+        counter += 1
+    theBackLink = reverse("umain")
+    return render(r,"confirmList.html",{"listSesstionAll":rFR,"backLink":theBackLink,"theTitle":"لیست حاضری‌های من"})
+
+# !fix : have bug when user logged in as teach can control other class which not class owner !!!
