@@ -15,6 +15,4 @@ urlpatterns = [
     path("id/<str:key>/<str:query>",detectFace,name="detectface"), #image detect
     path("is/<str:fakeName>",showImage,name="showimage"), #image show
     path("ic/<str:fakeName>/<int:x>/<int:y>/<int:w>/<int:h>",cropImage,name="cropimage"), #image crop
-    path("myClasses/", uMyClasses, name= "umyclasses"),
-    path("myPresents/", uMyPresents, name = "umypresents"),
 ]
