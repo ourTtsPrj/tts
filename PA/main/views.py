@@ -421,5 +421,7 @@ def listOfUserPresent(r) :
         counter += 1
     theBackLink = reverse("umain")
     return render(r,"confirmList.html",{"listSesstionAll":rFR,"backLink":theBackLink,"theTitle":"لیست حاضری‌های من"})
-
+@login_required
+def uMyClesses(r) :
+    pass
 # !fix : have bug when user logged in as teach can control other class which not class owner !!!
