@@ -19,4 +19,5 @@ urlpatterns = [
     path("ic/<int:classCode>/<int:faceId>",cropImageMinimal,name="cropimageminimal"),
     path("c/",makeClassPresent,name="makeclasspresent"),
     path("l/",listOfUserPresent,name="listofuserpresent"),
+    path("myClasses/",uMyClesses,name="umyclasses")
 ]
