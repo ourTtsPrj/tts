@@ -34,7 +34,7 @@
         </tr>
       </thead>
       <tbody>
-        {% for ckey,cvalue in listClassAll.items %}
+        {% for ckey,cvalue in listAllClass.items %}
         <tr>
           <th scope="row">{{ ckey }}</th>
           <td>{{ cvalue.class_name }}</td>
@@ -42,13 +42,6 @@
           <td>{{ cvalue.class_code }}</td>
           <td>{{ cvalue.class_memberlen }}</td>
           <td>{{ cvalue.class_owner }}</td>
-          <!-- {% if cvalue.class_hasactive == True %}
-          <td>بله</td>
-          {% else %}
-          <td>خبر</td>
-          {% endif %} -->
-          <td><a href="#">ثبت حاضری</a>
-          </td>
         </tr>
         {% endfor %}
       </tbody>

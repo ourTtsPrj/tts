@@ -423,5 +423,19 @@ def listOfUserPresent(r) :
     return render(r,"confirmList.html",{"listSesstionAll":rFR,"backLink":theBackLink,"theTitle":"لیست حاضری‌های من"})
 @login_required
 def uMyClesses(r) :
-    pass
+    theAllClasses = whoWhereModel.objects.filter(whoWhereStdCode=r.user.stdcode)
+    listAllClass={}
+    counter = 1
+
+    for theclass in theAllClasses :
+        dataClass = classModel.objects.filter(classCode=theclass.whoWhereClassCode)[0]
+        listAllClass[counter] ={
+            'class_name':dataClass.className,
+            'class_des':dataClass.classDes,
+            'class_code':dataClass.classCode,
+            'class_memberlen':dataClass.classMemberLen,
+            'class_owner':dataClass.classOwner,
+        }
+    counter +=1
+    return render(r,"myclasses.html",{'listAllClass':listAllClass})
 # !fix : have bug when user logged in as teach can control other class which not class owner !!!
