@@ -422,17 +422,18 @@
                 <p> {{msg}} </p>
                 {% else %}
 
-                <p style="direction:rtl;text-align:right;"> سلام {{ fname }} {{ lname }} <a
+                <p style="direction:rtl;text-align:right;"> سلام {{ fname }} {{ lname }}عزیز<br>
+                    پس از ثبت اولین حاضری،شما در آن کلاس عضو خواهید شد و بعداز آن می توانید حاضری خود را از بخش کلاس های من ثبت کنید. <br><a
                         href="{% url 'ulogout' %}">خروج ؟</a></p>
                 </h1>
                 <a href="#"><button id="logoutButton" class="btn-login txt" style="background-color:#6555df;">
                         ثبت حاضری
                     </button></a>
-                <a href="#" style="padding-top: 10px;"><button id="logoutButton" class="btn-login txt"
+                <a href="{% url 'umyclasses' %}" style="padding-top: 10px;"><button id="logoutButton" class="btn-login txt"
                         style="background-color:#6555df;">
                         کلاس‌های من
                     </button></a>
-                <a href="#" style="padding-top: 10px;"><button id="logoutButton" class="btn-login txt"
+                <a href="{% url 'umypresents' %}" style="padding-top: 10px;"><button id="logoutButton" class="btn-login txt"
                         style="background-color:#6555df;">
                         حاضری‌های من
                     </button></a>

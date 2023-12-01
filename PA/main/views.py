@@ -277,6 +277,47 @@ def cropImage(r,fakeName,x,y,w,h) :
     croppedImage.save(byteArr, format='PNG')
     byteArr.seek(0)
     return FileResponse(byteArr, content_type='image/png')
+@login_required
+def uMyClasses(request):
+    theUserClass = classModel.objects.filter(classOwner=request.user.stdcode)#theUserClass=whoWhereModel.objects.filter(classOwner.user.std)
+    listClassAll = {}
+    counter = 1
+
+    for cls in theUserClass:
+        
+        listClassAll[counter] = {
+            'class_name':cls.className ,  
+            'class_des':cls.classDes, 
+            'class_code':cls.classCode, 
+            'class_memberlen':cls.classMemberLen,
+            'class_owner':cls.classOwner, 
+            'class_hasactive':cls.classHasActiveSession, 
+            "classNewSLink":reverse("unewsession",args=[cls.classCode]),
+            "classSesstion":reverse("ulistclassde",args=[cls.classCode])
+
+
+        }
+        counter += 1
+    checkAllSesstionAndCloseEndedSesstion()
+    return render(request, "myClasses.html", {'listClassAll': listClassAll})
+@login_required
+def uMyPresents(request):
+    theUserClass = classModel.objects.filter(classOwner=request.user.stdcode)#theUserClass=whoWhereModel.objects.filter(classOwner.user.std)
+    listClassAll = {}
+    counter = 1
+
+    for cls in theUserClass:
+        
+        listClassAll[counter] = {
+            'class_code':cls.classCode,
+            'session_code':cls.classSessionSessionCode, 
+            'time_session':cls.whoWhereJoinedTime,
+            'image_session':cls.sessionImageImage,
+
+        }
+        counter += 1
+    checkAllSesstionAndCloseEndedSesstion()
+    return render(request, "myPresents.html", {'listClassAll': listClassAll})
     """def tf(r) :
     if r.method == "POST" :
         ttff = testForm(r.POST)
