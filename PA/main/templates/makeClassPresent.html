@@ -3,11 +3,7 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <script
-        src="https://cpwebassets.codepen.io/assets/common/stopExecutionOnTimeout-2c7831bb44f98c1391d6a4ffda0e1fd302503391ca806e7fcc7b9b87197aec26.js">
-        </script>
-    <title>پروفایل</title>
+    <title>ثبت حاضری در کلاس</title>
     <link rel='stylesheet' href='https://cdn.jsdelivr.net/npm/boxicons@2.0.5/css/boxicons.min.css'>
     <link rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.5.0/css/bootstrap.min.css'>
 
@@ -85,17 +81,17 @@
 
         /* 
 .Pcon-input input {
-     width: 100%;
-    padding: 14px 20px;
-    border: 0px;
-    background: #F1F3F6;
-    border-radius: 18px;
-    border: 2px solid rgb(var(--color));
-    transition: all .25s ease;
-    opacity: .2;
-}
+         width: 100%;
+        padding: 14px 20px;
+        border: 0px;
+        background: #F1F3F6;
+        border-radius: 18px;
+        border: 2px solid rgb(var(--color));
+        transition: all .25s ease;
+        opacity: .2;
+    }
 
-*/
+ */
 
 
 
@@ -140,12 +136,12 @@
 
 
         /*     label {
-    font-size: .8rem;
-    font-weight: 600;
-    color: #6555df;
-    padding-left: 10px;
-    display: block;
-} */
+        font-size: .8rem;
+        font-weight: 600;
+        color: #6555df;
+        padding-left: 10px;
+        display: block;
+    } */
 
 
 
@@ -256,15 +252,15 @@
 
 
         /* #animation {
-    position: absolute;
-    top: 0px;
-    left: 600px;
-    width: calc(100% - 600px);
-    height: 100%;
-    z-index: -1;
-   
-    border: 0px;
-} */
+        position: absolute;
+        top: 0px;
+        left: 600px;
+        width: calc(100% - 600px);
+        height: 100%;
+        z-index: -1;
+       
+        border: 0px;
+    } */
 
         #lottie {
             background: #F1F3F6 !important;
@@ -310,17 +306,17 @@
 
 
         /*     .content-login:after {
-    content: '';
-    position: absolute;
-    right: -150px;
-    background: #fff;
-    height: 100vh;
-    width: 150px;
-    top: 0px;
-    transform: skewX(3deg);
-    border-radius: 40px 0px 0px 40px;
-}
-*/
+        content: '';
+        position: absolute;
+        right: -150px;
+        background: #fff;
+        height: 100vh;
+        width: 150px;
+        top: 0px;
+        transform: skewX(3deg);
+        border-radius: 40px 0px 0px 40px;
+    }
+ */
 
 
         .con-login {
@@ -413,40 +409,63 @@
 
 <body translate="no">
     <div id="baseF">
+
         <div class="content-login">
             <div class="con-login">
                 <h1 class="hd-txt" style="color:#6555df;">
-                    پروفایل دانشجو، {{fname}}
+                    ثبت حاضری
                 </h1>
+                <p style="direction:rtl;text-align:right;"> <a href="{% url 'uprofile' %}">برگشت ؟</a></p>
                 {% if msg %}
                 <p> {{msg}} </p>
-                {% else %}
-
-                <p style="direction:rtl;text-align:right;"> سلام {{ fname }} {{ lname }}عزیز<br>
-                    پس از ثبت اولین حاضری،شما در آن کلاس عضو خواهید شد و بعداز آن می توانید حاضری خود را از بخش کلاس های من ثبت کنید. <br><a
-                        href="{% url 'ulogout' %}">خروج ؟</a></p>
-                </h1>
-                <a href="{% url 'makeclasspresent' %}"><button id="logoutButton" class="btn-login txt" style="background-color:#6555df;">
-                        ثبت حاضری
-                    </button></a>
-                <a href="{% url 'umyclasses' %}" style="padding-top: 10px;"><button id="logoutButton" class="btn-login txt"
-                        style="background-color:#6555df;">
-                        کلاس‌های من
-                    </button></a>
-                <a href="{% url 'listofuserpresent' %}" style="padding-top: 10px;"><button id="logoutButton" class="btn-login txt"
-                        style="background-color:#6555df;">
-                        حاضری‌های من
-                    </button></a>
-                <footer class="btn-login-footer">
-
-                </footer>
                 {% endif %}
+                {% if theImg %}
+                <p>
+                    {% for ckey, cvalue in theImg.items %}
+                    <a href="{{ cvalue.url }}">| عکس {{ ckey }}</a>
+                    {% endfor %}
+                </p>
+                {% endif %}
+                {% if theCroppedUserFace %}
+                <img src="{{ theCroppedUserFace }}" alt="" />
+                {% endif %}
+                <form action="#" method="post">
+                    {% csrf_token %}
+                    <div class="con-inputs">
+                        <div class="con-input">
+                            <label for="stdCode" style="color:#6555df;">
+                                کد کلاس
+                            </label>
+                            {{ form.classCode }}
+                        </div>
+                        {% if mode >= 2 %}
+                        <div class="con-input">
+                            <label for="stdCode" style="color:#6555df;">
+                                رمز کلاس
+                            </label>
+                            {{ form.classPass }}
+                        </div>
+                        {% endif %}
+                        {% if mode >= 3 %}
+                        <div class="con-input">
+                            <label for="stdCode" style="color:#6555df;">
+                                شماره چهره ؟
+                            </label>
+                            {{ form.userFace }}
+                        </div>
+                        {% endif %}
+                    </div>
+                    <footer class="btn-login-footer">
+                        <button class="btn-login txt" style="background-color:#6555df;" type="submit">
+                            ثبت حاضری
+                        </button>
+                    </footer>
+                </form>
             </div>
         </div>
 
         <div id="lottie" style="height:100vh;"></div>
     </div>
-
     <script src='https://cdnjs.cloudflare.com/ajax/libs/bodymovin/5.7.1/lottie.min.js'></script>
     <script id="rendered-js">
         const conInput = document.querySelector('.Pcon-input');

@@ -37,3 +37,8 @@ class MultipleFileField(forms.FileField):
 class newSessionForm(forms.Form):
     # file_field = forms.FileField(widget=forms.ClearableFileInput(attrs={'allow_multiple_selected': True}))
     file_field = MultipleFileField()
+class makeClassPresentForm(forms.Form) :
+    classCode = forms.IntegerField(widget=forms.TextInput(attrs={'style': 'color:#6555df;',"placeholder":"کد کلاس","autocomplete":"off","id":"className","type":"text"}))
+    classPass = forms.IntegerField(required=False,widget=forms.TextInput(attrs={'style': 'color:#6555df;',"placeholder":"رمز کلاس","autocomplete":"off","id":"className","type":"text"}))
+    userFace = forms.IntegerField(required=False,widget=forms.TextInput(attrs={'style': 'color:#6555df;',"placeholder":"شماره چهره","autocomplete":"off","id":"className","type":"text"}))
+    
