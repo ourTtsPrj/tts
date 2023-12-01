@@ -425,14 +425,14 @@
                 <p style="direction:rtl;text-align:right;"> سلام {{ fname }} {{ lname }} <a
                         href="{% url 'ulogout' %}">خروج ؟</a></p>
                 </h1>
-                <a href="#"><button id="logoutButton" class="btn-login txt" style="background-color:#6555df;">
+                <a href="{% url 'makeclasspresent' %}"><button id="logoutButton" class="btn-login txt" style="background-color:#6555df;">
                         ثبت حاضری
                     </button></a>
                 <a href="#" style="padding-top: 10px;"><button id="logoutButton" class="btn-login txt"
                         style="background-color:#6555df;">
                         کلاس‌های من
                     </button></a>
-                <a href="#" style="padding-top: 10px;"><button id="logoutButton" class="btn-login txt"
+                <a href="{% url 'listofuserpresent' %}" style="padding-top: 10px;"><button id="logoutButton" class="btn-login txt"
                         style="background-color:#6555df;">
                         حاضری‌های من
                     </button></a>

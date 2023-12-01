@@ -419,6 +419,16 @@
                 {% if msg %}
                 <p> {{msg}} </p>
                 {% endif %}
+                {% if theImg %}
+                <p>
+                    {% for ckey, cvalue in theImg.items %}
+                    <a href="{{ cvalue.url }}">| عکس {{ ckey }}</a>
+                    {% endfor %}
+                </p>
+                {% endif %}
+                {% if theCroppedUserFace %}
+                <img src="{{ theCroppedUserFace }}" alt="" />
+                {% endif %}
                 <form action="#" method="post">
                     {% csrf_token %}
                     <div class="con-inputs">
