@@ -1,6 +1,6 @@
+import random, time, string, os, requests, json, cv2, io, pytz
 from django.contrib.auth import login, authenticate, logout
 from django.contrib.auth.decorators import login_required
-import random, time, string, os, requests, json, cv2, io
 from django.core.files.storage import FileSystemStorage
 from django.http import FileResponse, JsonResponse
 from flask_restful import Api, Resource, abort
@@ -9,13 +9,49 @@ from django.shortcuts import render,redirect
 from django.urls import reverse
 from mtcnn.mtcnn import MTCNN
 from matplotlib import pyplot
+from datetime import datetime
 from flask import Flask
 from PIL import Image
 from .models import *
 from .forms import *
-
 rawImagePath = "theApi/iMgrAW/"
 detectImagePath = "theApi/iMgDeTECTfaCe/"
+
+def iranTime(gy, gm, gd):
+    g_d_m = [0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334]
+    if (gm > 2):
+        gy2 = gy + 1
+    else:
+        gy2 = gy
+    days = 355666 + (365 * gy) + ((gy2 + 3) // 4) - ((gy2 + 99) // 100) + ((gy2 + 399) // 400) + gd + g_d_m[gm - 1]
+    jy = -1595 + (33 * (days // 12053))
+    days %= 12053
+    jy += 4 * (days // 1461)
+    days %= 1461
+    if (days > 365):
+        jy += (days - 1) // 365
+        days = (days - 1) % 365
+    if (days < 186):
+        jm = 1 + (days // 31)
+        jd = 1 + (days % 31)
+    else:
+        jm = 7 + ((days - 186) // 30)
+        jd = 1 + ((days - 186) % 30)
+    return [jy, jm, jd]
+def getIranTime() :
+    tT = pytz.timezone("Asia/Tehran")
+    datetime_ist = datetime.now(tT)
+def getIranTimeFromTimestamp(timestamp) :
+    ttz = pytz.timezone("Asia/Tehran")
+    datetime_ist = datetime.fromtimestamp(timestamp,tz=ttz)
+    y,m,d = datetime_ist.strftime("%Y:%m:%d").split(":")
+    if int(m) < 10 :
+        m = str(m).replace("0","")
+    if int(d) < 10 :
+        d = str(d).replace("0","")
+    dIran = iranTime(int(y),int(m),int(d))
+    realDate = datetime_ist.strftime(f'{dIran[0]}-{dIran[1]}-{dIran[2]} %H:%M:%S')
+    return realDate
 def convertToJpg(imagePath):
     img = Image.open(imagePath)
     png_path = imagePath.rsplit('.', 1)[0] + '.jpg'
@@ -249,7 +285,7 @@ def uListClassDe(r,classcode):
     checkTheClassId = classModel.objects.filter(classCode=classcode)
     if len(checkTheClassId) <= 0 :
         return redirect("ulistclass")
-    theClassSesstion = classSessionModel.objects.filter(classSessionClassCode=classcode)
+    theClassSesstion = classSessionModel.objects.filter(classSessionClassCode=classcode).order_by("-classSessionOpenTime")
     theResult = {}
     theCounter = 1
     for tCS in theClassSesstion :
@@ -263,7 +299,12 @@ def uListClassDe(r,classcode):
         theEndIn = (tCS.classSessionOpenTime + tCS.classSessionOpenUntil) - int(time.time())
         if theEndIn < 0 :
             theEndIn = 0
-        theResult[theCounter] = {"sCode":tCS.classSessionSessionCode,"sStatus":tCS.classSessionStutus,"sStart":tCS.classSessionOpenTime,"sEnd":theEndIn,"sDetect":tCS.classSessionHowManyUserDetect,"sRecord":tCS.classSessionHowManyUserRecord,"sImg":theSFileString,"confrimUrl":reverse("confirmlist",args=[classcode,tCS.classSessionSessionCode])}
+        theSSS = tCS.classSessionStutus
+        if theSSS == "close" :
+            theSSS = "بسته"
+        else :
+            theSSS = "باز"
+        theResult[theCounter] = {"sCode":tCS.classSessionSessionCode,"sStatus":theSSS,"sStart":getIranTimeFromTimestamp(tCS.classSessionOpenTime),"sEnd":theEndIn,"sDetect":tCS.classSessionHowManyUserDetect,"sRecord":tCS.classSessionHowManyUserRecord,"sImg":theSFileString,"confrimUrl":reverse("confirmlist",args=[classcode,tCS.classSessionSessionCode])}
         theCounter += 1
     return render(r,"listOfClassDe.html",{"listSesstionAll":theResult})
 def detectFace(r,key,query) :
@@ -408,7 +449,7 @@ def confirmList(r,theClassCode,sessionCode) :
         theUserDes = json.loads(theasl.sessionLogFaceDes)
         theUserFakeFileName = theUserDes["fakeFile"]
         theUserFakeFaceBox = theUserDes["faceBox"]
-        rFR[counter] = {"codeClass":theClassCode,"codeSe":sessionCode,"sCode":theasl.sessionLogStdCode,"fCode":theasl.sessionLogFaceCode,"faceUrl":reverse("cropimage",args=[theUserFakeFileName,theUserFakeFaceBox[0],theUserFakeFaceBox[1],theUserFakeFaceBox[2],theUserFakeFaceBox[3]]),"rTime":theasl.sessionLogTime}
+        rFR[counter] = {"codeClass":theClassCode,"codeSe":sessionCode,"sCode":theasl.sessionLogStdCode,"fCode":theasl.sessionLogFaceCode,"faceUrl":reverse("cropimage",args=[theUserFakeFileName,theUserFakeFaceBox[0],theUserFakeFaceBox[1],theUserFakeFaceBox[2],theUserFakeFaceBox[3]]),"rTime":getIranTimeFromTimestamp(theasl.sessionLogTime)}
         counter += 1
     theBackLink = reverse("ulistclassde",args=[theClassCode])
     return render(r,"confirmList.html",{"listSesstionAll":rFR,"backLink":theBackLink,"theTitle":"لیست تایید جلسه"})
@@ -421,7 +462,7 @@ def listOfUserPresent(r) :
         theUserDes = json.loads(theasl.sessionLogFaceDes)
         theUserFakeFileName = theUserDes["fakeFile"]
         theUserFakeFaceBox = theUserDes["faceBox"]
-        rFR[counter] = {"codeClass":theasl.sessionLogClassCode,"codeSe":theasl.sessionLogSessionCode,"sCode":theasl.sessionLogStdCode,"fCode":theasl.sessionLogFaceCode,"faceUrl":reverse("cropimage",args=[theUserFakeFileName,theUserFakeFaceBox[0],theUserFakeFaceBox[1],theUserFakeFaceBox[2],theUserFakeFaceBox[3]]),"rTime":theasl.sessionLogTime}
+        rFR[counter] = {"codeClass":theasl.sessionLogClassCode,"codeSe":theasl.sessionLogSessionCode,"sCode":theasl.sessionLogStdCode,"fCode":theasl.sessionLogFaceCode,"faceUrl":reverse("cropimage",args=[theUserFakeFileName,theUserFakeFaceBox[0],theUserFakeFaceBox[1],theUserFakeFaceBox[2],theUserFakeFaceBox[3]]),"rTime":getIranTimeFromTimestamp(theasl.sessionLogTime)}
         counter += 1
     theBackLink = reverse("umain")
     return render(r,"confirmList.html",{"listSesstionAll":rFR,"backLink":theBackLink,"theTitle":"لیست حاضری‌های من"})
