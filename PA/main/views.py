@@ -186,7 +186,7 @@ def uListClass(request):
             'class_des':cls.classDes, 
             'class_pass':cls.classPass, 
             'class_code':cls.classCode, 
-            'class_memberlen':cls.classMemberLen, 
+            'class_memberlen':len(whoWhereModel.objects.filter(whoWhereClassCode=cls.classCode)), 
             'class_hasactive':cls.classHasActiveSession, 
             "classNewSLink":reverse("unewsession",args=[cls.classCode]),
             "classSesstion":reverse("ulistclassde",args=[cls.classCode])
@@ -330,8 +330,12 @@ def makeClassPresent(r) :
                 if type(checkUserFaceId) is bool :
                     theMakeClassPresent = makeClassPresentForm(initial={"classCode":thePClassCode,"classPass":thePClassPass})
                     return render(r,"makeClassPresent.html",{"form":theMakeClassPresent,"mode":3,"msg":"شماره چهره وارد شده متعبر نمی‌باشد"})
-                userFaceIdUrl = reverse("cropimageminimal",args=[thePClassCode,thePUserFace])
                 theThisClassSeCode = classSessionModel.objects.filter(classSessionClassCode=thePClassCode,classSessionStutus="open")[0]
+                checkThisFaceUseBefore = sessionLog.objects.filter(sessionLogClassCode=thePClassCode,sessionLogSessionCode=theThisClassSeCode.classSessionSessionCode,sessionLogFaceCode=thePUserFace)
+                if len(checkThisFaceUseBefore) > 0 :
+                    theLinkOfPhotos = getAllLinkOfSessionImage(thePClassCode)
+                    return render(r,"makeClassPresent.html",{"form":theMakeClassPresent,"mode":3,"msg":"این شماره چهره قبلا ثبت شده، هر چهره فقط یکبار میتواند ثبت شود","theImg":theLinkOfPhotos})
+                userFaceIdUrl = reverse("cropimageminimal",args=[thePClassCode,thePUserFace])
                 checkUserSetPABefore = sessionLog.objects.filter(sessionLogClassCode=thePClassCode,sessionLogSessionCode=theThisClassSeCode.classSessionSessionCode,sessionLogStdCode=r.user.stdcode)
                 theSomeDataFromInCode = findFaceBoxInActiveSe(thePClassCode,thePUserFace)
                 theJsonForDes = json.dumps({"fakeFile":theSomeDataFromInCode[1],"faceBox":theSomeDataFromInCode[2]})
@@ -423,5 +427,14 @@ def listOfUserPresent(r) :
     return render(r,"confirmList.html",{"listSesstionAll":rFR,"backLink":theBackLink,"theTitle":"لیست حاضری‌های من"})
 @login_required
 def uMyClesses(r) :
-    pass
+    theResult = {}
+    counter = 1
+    theListOfClassUJoined = whoWhereModel.objects.filter(whoWhereStdCode=r.user.stdcode)
+    for theW in theListOfClassUJoined :
+        theClassDetail = classModel.objects.filter(classCode=theW.whoWhereClassCode)[0]
+        theOwenerName = User.objects.filter(stdcode=theClassDetail.classOwner)[0]
+        theOwenerName = f"{theOwenerName.firstName} {theOwenerName.lastName}"
+        theResult[counter] = {"className":theClassDetail.className,"classDes":theClassDetail.classDes,"classCode":theClassDetail.classCode,"classMemberLen":len(whoWhereModel.objects.filter(whoWhereClassCode=theClassDetail.classCode)),"theOwenerName":theOwenerName}
+        counter += 1
+    return render(r,"myclasses.html",{"theResult":theResult})
 # !fix : have bug when user logged in as teach can control other class which not class owner !!!

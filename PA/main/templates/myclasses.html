@@ -30,24 +30,24 @@
           <th scope="col">کد کلاس</th>
           <th scope="col">اعضا</th>
           <th scope="col">سازنده کلاس</th>
-          <th scope="col">. . .</th>
+          <!-- <th scope="col">. . .</th> -->
         </tr>
       </thead>
       <tbody>
-        {% for ckey,cvalue in listClassAll.items %}
+        {% for ckey,cvalue in theResult.items %}
         <tr>
           <th scope="row">{{ ckey }}</th>
-          <td>{{ cvalue.class_name }}</td>
-          <td>{{ cvalue.class_des }}</td>
-          <td>{{ cvalue.class_code }}</td>
-          <td>{{ cvalue.class_memberlen }}</td>
-          <td>{{ cvalue.class_owner }}</td>
+          <td>{{ cvalue.className }}</td>
+          <td>{{ cvalue.classDes }}</td>
+          <td>{{ cvalue.classCode }}</td>
+          <td>{{ cvalue.classMemberLen }}</td>
+          <td>{{ cvalue.theOwenerName }}</td>
           <!-- {% if cvalue.class_hasactive == True %}
           <td>بله</td>
           {% else %}
           <td>خبر</td>
           {% endif %} -->
-          <td><a href="#">ثبت حاضری</a>
+          <!-- <td><a href="#">ثبت حاضری</a> -->
           </td>
         </tr>
         {% endfor %}
